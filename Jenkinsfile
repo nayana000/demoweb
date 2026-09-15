@@ -17,7 +17,7 @@ pipeline {
                 sh '''
                     echo "Building version ${VERSION}"
 
-                    # Check that index.html exists
+                    # Check that web.html exists
                     test -f web.html
 
                     # Create deployment directory
@@ -25,7 +25,7 @@ pipeline {
                     mkdir -p deployment
 
                     # Copy the original HTML
-                    cp web.html deployment/index.html
+                    cp web.html deployment/web.html
 
                     # Replace placeholder with Jenkins build number
                     sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" \
