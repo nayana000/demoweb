@@ -6,15 +6,14 @@ pipeline {
         S3_BUCKET  = 'test'
         VERSION    = "${BUILD_NUMBER}"
     }
+
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
+
         stage('Build') {
             steps {
                 sh '''
+                    set -e
+
                     echo "Building version ${VERSION}"
 
                     # Check that web.html exists
@@ -24,10 +23,10 @@ pipeline {
                     rm -rf deployment
                     mkdir -p deployment
 
-                    # Copy the original HTML
+                    # Copy HTML
                     cp web.html deployment/web.html
 
-                    # Replace placeholder with Jenkins build number
+                    # Replace version placeholder
                     sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" \
                         deployment/web.html
 
@@ -44,6 +43,7 @@ pipeline {
                     region: "${AWS_REGION}"
                 ) {
                     sh '''
+                        set -e
 
                         echo "Deploying version v${VERSION}"
 
@@ -62,6 +62,7 @@ pipeline {
                     region: "${AWS_REGION}"
                 ) {
                     sh '''
+                        set -e
 
                         echo "Deploying v${VERSION} as latest"
 
@@ -83,20 +84,20 @@ pipeline {
     post {
         success {
             echo """
-            =====================================
-            DEPLOYMENT SUCCESSFUL
-            =====================================
+=====================================
+DEPLOYMENT SUCCESSFUL
+=====================================
 
-            Version: v${VERSION}
+Version: v${VERSION}
 
-            Versioned:
-            s3://${S3_BUCKET}/versions/v${VERSION}/web.html
+Versioned:
+s3://${S3_BUCKET}/versions/v${VERSION}/web.html
 
-            Latest:
-            s3://${S3_BUCKET}/web.html
+Latest:
+s3://${S3_BUCKET}/web.html
 
-            =====================================
-            """
+=====================================
+"""
         }
 
         failure {
@@ -104,9 +105,7 @@ pipeline {
         }
 
         always {
-            sh '''
-                rm -rf deployment || true
-            '''
+            sh 'rm -rf deployment || true'
         }
     }
 }
