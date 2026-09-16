@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = 'ap-south-1'
-        S3_BUCKET  = 'test'
+        S3_BUCKET  = 'test-890615325308-ap-south-1-an'
         VERSION    = "${BUILD_NUMBER}"
     }
 
